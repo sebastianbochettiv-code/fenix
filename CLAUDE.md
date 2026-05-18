@@ -1,6 +1,148 @@
-# CLAUDE.md
+# Twenty Mago Chic — Fork
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Fork de [twentyhq/twenty](https://github.com/twentyhq/twenty) customizado para Mago Chic.  
+**Rama de trabajo:** `magochic/dev`  
+**Repo:** https://github.com/sebastianbochettiv-code/twenty-magochic
+
+---
+
+## Contexto del proyecto
+
+Twenty es un CRM open source, API-first, construido en monorepo. Este fork agrega funcionalidades para Mago Chic (empresa de limpieza industrial en Chile):
+- Campos con validación chilena (RUT con Módulo 11 en tiempo real)
+- Integración Google Maps en campos de dirección con mapa embebido
+- Módulos de negocio: Licitaciones, Servicios, Cotizaciones, Órdenes de Trabajo
+
+La instancia de producción local corre en Docker en `C:\Users\sebas\Documents\apps\Mago Chic\twenty\`.  
+Este repositorio es el código fuente que se compila para reemplazar la imagen upstream.
+
+---
+
+## Monorepo — paquetes relevantes
+
+```
+packages/
+  twenty-front/     → Frontend React 19 + TypeScript (Vite) ← PRINCIPAL
+  twenty-server/    → Backend NestJS + TypeScript ← SECUNDARIO
+  twenty-ui/        → Design system (componentes base)
+  twenty-shared/    → Tipos compartidos front/back
+  twenty-docker/    → Dockerfiles
+```
+
+---
+
+## Frontend — dónde vive cada cosa
+
+```
+packages/twenty-front/src/
+  modules/
+    object-record/
+      record-field/
+        components/    ← ★ AQUÍ van los field types custom (RUT, Dirección+Mapa)
+        types/
+      record-show/     ← Vista detalle ← aquí va el mapa embebido en Instalación
+      record-form/     ← Formulario creación/edición
+    metadata/          ← Sincronización con Metadata API
+    workflow/          ← UI de workflows
+  pages/               ← Rutas (React Router)
+```
+
+### Patrón de field type
+
+Cada campo tiene dos componentes:
+- `Field{Type}Display.tsx` — modo lectura
+- `Field{Type}Edit.tsx` — modo edición
+
+Para campo custom: crear ambos + registrar en el mapper de tipos.
+
+---
+
+## Data Model en producción (instancia local)
+
+| Objeto | Object ID |
+|---|---|
+| Empresa (Company) | `9e32abcb-7b29-4403-bf87-a8b4959d5c5d` |
+| Instalación | `f9258260-cfbd-4c90-9c4f-59da34138142` |
+| Producto | `fe2d6ec9-c474-46ef-881a-d7ef2900f851` |
+
+Campos Empresa: `rut`, `razonSocial`, `giroComercial`, `estado`, `ofPisoDpto`, `proximaLicitacion`  
+Campos Instalación: `name`, `direccion`, `estado`, `comuna` (56 comunas), `relojControl`, `cliente`→Empresa  
+Campos Producto: `name`, `categoria`, `precioUnitario`, `costoUnitario`, `tipo`, `estado`, `instalacion`→Instalación
+
+Workflows activos: Validar RUT Empresa (company.created + company.updated) — Módulo 11.
+
+---
+
+## Instancia Docker local
+
+```
+URL:      http://localhost:3100
+Usuario:  sebastian@magochic.cl
+DB:       postgres://twenty:TwentyMago2024!@localhost:5432/twenty
+MCP:      http://localhost:3100/mcp
+```
+
+`C:\Users\sebas\Documents\apps\Mago Chic\twenty\` — docker-compose.yml de producción local.
+
+---
+
+## Desarrollo
+
+```bash
+yarn install
+
+# Dev sin Docker
+cd packages/twenty-server && yarn start:dev   # Terminal 1
+cd packages/twenty-front  && yarn dev         # Terminal 2
+
+# Build imagen Docker desde fork
+docker build -t magochic/twenty:local -f packages/twenty-docker/Dockerfile .
+```
+
+### Conectar fork al docker-compose de producción
+
+En `docker-compose.yml` cambiar `image: twentycrm/twenty:latest` por:
+```yaml
+build:
+  context: C:\mgc\twenty-magochic
+  dockerfile: packages/twenty-docker/Dockerfile
+```
+
+---
+
+## Git
+
+```bash
+# Rama de trabajo
+magochic/dev   ← todos los cambios Mago Chic van aquí, nunca en main
+
+# Recibir updates de Twenty upstream
+git fetch upstream
+git merge upstream/main
+git push origin magochic/dev
+```
+
+---
+
+## Roadmap
+
+| Prioridad | Feature | Dónde |
+|---|---|---|
+| 🔴 1 | RUT con Módulo 11 en tiempo real | `record-field/components/` (nuevo FieldRutEdit) |
+| 🔴 2 | Dirección con Google Places autocomplete | `record-field/components/` |
+| 🔴 3 | Mapa embebido en detalle de Instalación | `record-show/` (nuevo panel) |
+| 🟡 4 | Módulo Licitaciones | Metadata API (sin fork) |
+| 🟡 5 | Módulo Servicios | Metadata API (sin fork) |
+| 🟢 6 | Cotizaciones PDF | nueva página |
+| 🟢 7 | Órdenes de trabajo | nueva página |
+
+---
+
+## Referencias
+
+- Arquitectura completa: `C:\Users\sebas\Documents\apps\Mago Chic\twenty\ARCHITECTURE.md`
+- Backup DB: `C:\Users\sebas\Documents\apps\Mago Chic\twenty-backup-2026-05-17\`
+- Twenty docs: https://twenty.com/developers
 
 ## Project Overview
 
