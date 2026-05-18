@@ -50,6 +50,15 @@ export default defineConfig(({ mode }) => {
 
     server: {
       port: port,
+      proxy: {
+        '/graphql': { target: 'http://localhost:3100', changeOrigin: true, ws: true },
+        '/metadata': { target: 'http://localhost:3100', changeOrigin: true },
+        '/auth': { target: 'http://localhost:3100', changeOrigin: true },
+        '/rest': { target: 'http://localhost:3100', changeOrigin: true },
+        '/files': { target: 'http://localhost:3100', changeOrigin: true },
+        '/api': { target: 'http://localhost:3100', changeOrigin: true },
+        '/client-config': { target: 'http://localhost:3100', changeOrigin: true },
+      },
       ...(VITE_HOST ? { host: VITE_HOST } : {}),
       ...(SSL_KEY_PATH && SSL_CERT_PATH
         ? {

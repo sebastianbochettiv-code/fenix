@@ -151,8 +151,8 @@ export const InviteTeam = () => {
     [enqueueSuccessSnackBar, sendInvitation, setNextOnboardingStatus, t],
   );
 
-  const handleSkip = async () => {
-    await onSubmit({ emails: [] });
+  const handleSkip = () => {
+    setNextOnboardingStatus();
   };
 
   useHotkeysOnFocusedElement({
