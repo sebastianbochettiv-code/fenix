@@ -1,6 +1,7 @@
 import { DEFAULT_COMPANY_RECORD_PAGE_LAYOUT_ID } from '@/page-layout/constants/DefaultCompanyRecordPageLayoutId';
 import { type PageLayout } from '@/page-layout/types/PageLayout';
 import {
+  FieldDisplayMode,
   PageLayoutTabLayoutMode,
   PageLayoutType,
   WidgetConfigurationType,
@@ -56,6 +57,37 @@ export const DEFAULT_COMPANY_RECORD_PAGE_LAYOUT: PageLayout = {
             __typename: 'FieldsConfiguration',
             configurationType: WidgetConfigurationType.FIELDS,
             viewId: null,
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          deletedAt: null,
+        },
+        {
+          __typename: 'PageLayoutWidget',
+          applicationId: '',
+          id: 'company-widget-instalaciones',
+          isActive: true,
+          pageLayoutTabId: 'company-tab-fields',
+          title: 'Instalaciones',
+          type: WidgetType.FIELD,
+          objectMetadataId: null,
+          gridPosition: {
+            __typename: 'GridPosition',
+            row: 0,
+            column: 0,
+            rowSpan: 12,
+            columnSpan: 12,
+          },
+          position: {
+            __typename: 'PageLayoutWidgetVerticalListPosition',
+            layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+            index: 3,
+          },
+          configuration: {
+            __typename: 'FieldConfiguration',
+            configurationType: WidgetConfigurationType.FIELD,
+            fieldMetadataId: 'd0a523b0-e843-4069-859e-e24f20df4375',
+            fieldDisplayMode: FieldDisplayMode.CARD,
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

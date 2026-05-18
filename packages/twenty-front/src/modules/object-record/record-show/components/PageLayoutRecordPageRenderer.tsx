@@ -2,6 +2,7 @@ import { RecordPageSidePanelCommandMenu } from '@/command-menu-item/components/R
 import { RecordShowSidePanelOpenRecordButton } from '@/command-menu-item/components/RecordShowSidePanelOpenRecordButton';
 import { InformationBannerDeletedRecord } from '@/information-banner/components/deleted-record/InformationBannerDeletedRecord';
 import { RecordShowContainerContextStoreTargetedRecordsEffect } from '@/object-record/record-show/components/RecordShowContainerContextStoreTargetedRecordsEffect';
+import { DireccionMapCard } from '@/object-record/record-show/components/DireccionMapCard';
 import { RecordShowEffect } from '@/object-record/record-show/components/RecordShowEffect';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
 import { PageLayoutRenderer } from '@/page-layout/components/PageLayoutRenderer';
@@ -91,27 +92,51 @@ export const PageLayoutRecordPageRenderer = ({
       )}
 
       <StyledShowPageRightContainer>
-        <StyledContentContainer isInSidePanel={isInSidePanel}>
-          <LayoutRenderingProvider
-            value={{
-              targetRecordIdentifier: {
-                id: targetRecordIdentifier.id,
-                targetObjectNameSingular:
-                  targetRecordIdentifier.targetObjectNameSingular,
-              },
-              layoutType:
-                targetRecordIdentifier.targetObjectNameSingular ===
-                CoreObjectNameSingular.Dashboard
-                  ? PageLayoutType.DASHBOARD
-                  : PageLayoutType.RECORD_PAGE,
-              isInSidePanel,
-            }}
-          >
-            {isDefined(pageLayoutId) && (
-              <PageLayoutRenderer pageLayoutId={pageLayoutId} />
-            )}
-          </LayoutRenderingProvider>
-        </StyledContentContainer>
+        {targetRecordIdentifier.targetObjectNameSingular === 'instalacion' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 70%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 30%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <DireccionMapCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : (
+          <StyledContentContainer isInSidePanel={isInSidePanel}>
+            <LayoutRenderingProvider
+              value={{
+                targetRecordIdentifier: {
+                  id: targetRecordIdentifier.id,
+                  targetObjectNameSingular:
+                    targetRecordIdentifier.targetObjectNameSingular,
+                },
+                layoutType:
+                  targetRecordIdentifier.targetObjectNameSingular ===
+                  CoreObjectNameSingular.Dashboard
+                    ? PageLayoutType.DASHBOARD
+                    : PageLayoutType.RECORD_PAGE,
+                isInSidePanel,
+              }}
+            >
+              {isDefined(pageLayoutId) && (
+                <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+              )}
+            </LayoutRenderingProvider>
+          </StyledContentContainer>
+        )}
 
         {isInSidePanel && (
           <SidePanelFooter

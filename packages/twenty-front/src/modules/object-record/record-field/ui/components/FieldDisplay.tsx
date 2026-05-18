@@ -41,6 +41,7 @@ import { MultiSelectFieldDisplay } from '@/object-record/record-field/ui/meta-ty
 import { NumberFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/NumberFieldDisplay';
 import { RelationToOneFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/RelationToOneFieldDisplay';
 import { SelectFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/SelectFieldDisplay';
+import { RutFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/RutFieldDisplay';
 import { TextFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/TextFieldDisplay';
 import { UuidFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/UuidFieldDisplay';
 import { isFieldAddress } from '@/object-record/record-field/ui/types/guards/isFieldAddress';
@@ -82,6 +83,8 @@ export const FieldDisplay = () => {
     <MorphRelationManyToOneFieldDisplay />
   ) : isFieldMorphRelationOneToMany(fieldDefinition) ? (
     <MorphRelationOneToManyFieldDisplay />
+  ) : isFieldText(fieldDefinition) && fieldDefinition.metadata.fieldName === 'rut' ? (
+    <RutFieldDisplay />
   ) : isFieldText(fieldDefinition) ? (
     <TextFieldDisplay />
   ) : isFieldUuid(fieldDefinition) ? (

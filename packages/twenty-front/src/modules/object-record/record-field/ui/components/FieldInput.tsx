@@ -13,6 +13,7 @@ import { SelectFieldInput } from '@/object-record/record-field/ui/meta-types/inp
 import { isFieldPhones } from '@/object-record/record-field/ui/types/guards/isFieldPhones';
 
 import { ArrayFieldInput } from '@/object-record/record-field/ui/meta-types/input/components/ArrayFieldInput';
+import { RutFieldInput } from '@/object-record/record-field/ui/meta-types/input/components/RutFieldInput';
 import { MorphRelationManyToOneFieldInput } from '@/object-record/record-field/ui/meta-types/input/components/MorphRelationManyToOneFieldInput';
 import { MorphRelationOneToManyFieldInput } from '@/object-record/record-field/ui/meta-types/input/components/MorphRelationOneToManyFieldInput';
 import { RelationManyToOneFieldInput } from '@/object-record/record-field/ui/meta-types/input/components/RelationManyToOneFieldInput';
@@ -62,6 +63,8 @@ export const FieldInput = () => {
         <MorphRelationOneToManyFieldInput />
       ) : isFieldPhones(fieldDefinition) ? (
         <PhonesFieldInput />
+      ) : isFieldText(fieldDefinition) && fieldDefinition.metadata.fieldName === 'rut' ? (
+        <RutFieldInput />
       ) : isFieldText(fieldDefinition) ? (
         <TextFieldInput />
       ) : isFieldEmails(fieldDefinition) ? (
