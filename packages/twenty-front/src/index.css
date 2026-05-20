@@ -394,7 +394,7 @@ form {
 }
 .mgc-ss-search::placeholder { color: rgba(255,255,255,0.25); }
 .mgc-ss-list {
-  max-height: 200px;
+  max-height: 260px;
   overflow-y: auto;
 }
 .mgc-ss-option {
@@ -425,10 +425,11 @@ form {
   border-radius: 10px;
   width: 420px;
   max-width: 90vw;
+  min-height: 420px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .mgc-popup-header {

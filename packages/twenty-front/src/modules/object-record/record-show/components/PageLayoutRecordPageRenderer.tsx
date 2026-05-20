@@ -7,7 +7,6 @@ import { PresupuestoCard } from '@/object-record/record-show/components/Presupue
 import { VariableEditorCard } from '@/object-record/record-show/components/VariableEditorCard';
 import { ConexionManagerCard } from '@/object-record/record-show/components/ConexionManagerCard';
 import { ClienteInstalacionesCard } from '@/object-record/record-show/components/ClienteInstalacionesCard';
-import { ProductoClienteInstalacionCard } from '@/object-record/record-show/components/ProductoClienteInstalacionCard';
 import { ProductoCostosCard } from '@/object-record/record-show/components/ProductoCostosCard';
 import { RecordShowEffect } from '@/object-record/record-show/components/RecordShowEffect';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
@@ -210,7 +209,7 @@ export const PageLayoutRecordPageRenderer = ({
           </div>
         ) : targetRecordIdentifier.targetObjectNameSingular === 'producto' ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-            <div style={{ flex: '0 0 45%', overflowY: 'auto' }}>
+            <div style={{ flex: '0 0 60%', overflowY: 'auto' }}>
               <LayoutRenderingProvider
                 value={{
                   targetRecordIdentifier: {
@@ -226,10 +225,7 @@ export const PageLayoutRecordPageRenderer = ({
                 )}
               </LayoutRenderingProvider>
             </div>
-            <div style={{ flex: '0 0 30%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <ProductoClienteInstalacionCard recordId={targetRecordIdentifier.id} />
-            </div>
-            <div style={{ flex: '0 0 25%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ flex: '0 0 40%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <ProductoCostosCard recordId={targetRecordIdentifier.id} />
             </div>
           </div>

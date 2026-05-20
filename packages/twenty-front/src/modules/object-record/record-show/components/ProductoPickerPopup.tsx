@@ -1,46 +1,16 @@
 import { useState } from 'react';
 import { SearchableSelect } from './SearchableSelect';
 
-type LineaItem = {
-  productoId: string;
-  descripcion: string;
-  cantidad: number;
-  precioUnitario: number;
-  descuento: number;
-  tieneDescuento: boolean;
-  subtotal: number;
-};
-
 type Props = {
   productos: any[];
-  onConfirm: (linea: LineaItem) => void;
+  onConfirm: (productoId: string) => void;
   onClose: () => void;
 };
-
-const fromMicros = (micros: number | null | undefined) =>
-  micros != null ? micros / 1_000_000 : 0;
 
 export const ProductoPickerPopup = ({ productos, onConfirm, onClose }: Props) => {
   const [selectedId, setSelectedId] = useState('');
 
   const options = productos.map((p: any) => ({ id: p.id, label: p.name }));
-  const seleccionado = productos.find((p: any) => p.id === selectedId);
-
-  const handleConfirm = () => {
-    if (!seleccionado) return;
-    const precio = fromMicros(seleccionado.precioUnitario?.amountMicros);
-    const tieneDescuento = seleccionado.tieneDescuento ?? false;
-    const descuento = tieneDescuento ? (seleccionado.descuentoPorcentaje ?? 0) : 0;
-    onConfirm({
-      productoId: seleccionado.id,
-      descripcion: seleccionado.name,
-      cantidad: 1,
-      precioUnitario: precio,
-      descuento,
-      tieneDescuento,
-      subtotal: Math.round(precio * (1 - descuento / 100)),
-    });
-  };
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
 
@@ -57,12 +27,12 @@ export const ProductoPickerPopup = ({ productos, onConfirm, onClose }: Props) =>
             options={options}
             value={selectedId}
             onChange={setSelectedId}
-            placeholder={options.length ? 'Seleccionar producto...' : 'Sin productos para este cliente e instalación'}
+            placeholder={options.length ? 'Seleccionar producto...' : 'Sin productos en el catálogo'}
             disabled={options.length === 0}
           />
           {options.length === 0 && (
             <div className="mgc-popup-empty" style={{ marginTop: 8 }}>
-              Vinculá productos a este cliente e instalación primero
+              No hay productos en el catálogo libre. Agregá productos sin empresa asignada.
             </div>
           )}
         </div>
@@ -73,8 +43,8 @@ export const ProductoPickerPopup = ({ productos, onConfirm, onClose }: Props) =>
           </button>
           <button
             className="mgc-popup-confirm"
-            disabled={!seleccionado}
-            onClick={(e) => { stop(e); handleConfirm(); }}
+            disabled={!selectedId}
+            onClick={(e) => { stop(e); onConfirm(selectedId); }}
           >
             Agregar
           </button>

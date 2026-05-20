@@ -7,7 +7,6 @@ import { SearchableSelect } from './SearchableSelect';
 type LineaItem = {
   productoId: string;
   descripcion: string;
-  cantidad: number;
   precioUnitario: number;
   descuento: number;
   tieneDescuento: boolean;
@@ -17,19 +16,22 @@ type LineaItem = {
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(n);
 
+const fromMicros = (micros: number | null | undefined) =>
+  micros != null ? micros / 1_000_000 : 0;
+
 export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
   const [selectedClienteId, setSelectedClienteId] = useState('');
   const [selectedInstalacionId, setSelectedInstalacionId] = useState('');
   const [selectedContactoId, setSelectedContactoId] = useState('');
-  const [lineas, setLineas] = useState<LineaItem[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasLoadedRef = useRef(false);
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  // ── Cargar valores existentes al montar ──
+  // ── Cargar presupuesto actual ──
   const { records: presupuestoRecords } = useFindManyRecords({
     objectNameSingular: 'presupuesto',
     filter: { id: { eq: recordId } },
@@ -37,13 +39,27 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
   } as any);
   const presupuestoActual = (presupuestoRecords as any[])[0];
 
+  // ── Cargar productos asignados a este presupuesto ──
+  const { records: productosAsignados } = useFindManyRecords({
+    objectNameSingular: 'producto',
+    filter: { productosId: { eq: recordId } },
+    recordGqlFields: {
+      id: true,
+      name: true,
+      precioUnitario: { amountMicros: true, currencyCode: true },
+      tieneDescuento: true,
+      descuentoPorcentaje: true,
+    },
+  } as any);
+
   useEffect(() => {
-    if (presupuestoActual) {
+    if (presupuestoActual && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
       if (presupuestoActual.company?.id) setSelectedClienteId(presupuestoActual.company.id);
       if (presupuestoActual.instalacion?.id) setSelectedInstalacionId(presupuestoActual.instalacion.id);
       if (presupuestoActual.person?.id) setSelectedContactoId(presupuestoActual.person.id);
     }
-  }, [presupuestoActual?.company?.id, presupuestoActual?.instalacion?.id, presupuestoActual?.person?.id]);
+  }, [presupuestoActual]);
 
   const flashSaved = useCallback(() => {
     setSaving(false);
@@ -71,7 +87,7 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
     objectNameSingular: 'person',
     recordGqlFields: { id: true, name: { firstName: true, lastName: true }, company: { id: true } },
   } as any);
-  const { records: productos } = useFindManyRecords({
+  const { records: todosProductos } = useFindManyRecords({
     objectNameSingular: 'producto',
     recordGqlFields: {
       id: true,
@@ -80,17 +96,13 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
       tieneDescuento: true,
       descuentoPorcentaje: true,
       company: { id: true },
-      instalacion: { id: true },
     },
   } as any);
 
   const clienteOptions = (companies as any[]).map((c) => ({ id: c.id, label: c.name }));
 
-  const productosFiltrados = selectedClienteId && selectedInstalacionId
-    ? (productos as any[]).filter(
-        (p) => p.company?.id === selectedClienteId && p.instalacion?.id === selectedInstalacionId,
-      )
-    : [];
+  // Catálogo libre: productos sin empresa asignada, siempre disponibles
+  const productosFiltrados = (todosProductos as any[]).filter((p) => !p.company?.id);
 
   const instalOptions = selectedClienteId
     ? (instalaciones as any[])
@@ -107,6 +119,21 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
           return { id: p.id, label: `${fn} ${ln}`.trim() || p.id };
         })
     : [];
+
+  // ── Construir lineas desde productos asignados ──
+  const lineas: LineaItem[] = (productosAsignados as any[]).map((p) => {
+    const precio = fromMicros(p.precioUnitario?.amountMicros);
+    const tieneDesc = p.tieneDescuento ?? false;
+    const desc = tieneDesc ? (p.descuentoPorcentaje ?? 0) : 0;
+    return {
+      productoId: p.id,
+      descripcion: p.name,
+      precioUnitario: precio,
+      descuento: desc,
+      tieneDescuento: tieneDesc,
+      subtotal: Math.round(precio * (1 - desc / 100)),
+    };
+  });
 
   const totalNeto = lineas.reduce((sum, l) => sum + l.subtotal, 0);
   const totalIVA = Math.round(totalNeto * 0.19);
@@ -129,25 +156,26 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
     saveFields({ personId: id || null });
   };
 
-  const addLinea = (linea: LineaItem) => {
-    setLineas((prev) => [...prev, linea]);
+  const addProducto = (productoId: string) => {
+    setSaving(true);
+    setSaved(false);
+    (updateOneRecord as any)({
+      objectNameSingular: 'producto',
+      idToUpdate: productoId,
+      updateOneRecordInput: {
+        productosId: recordId,
+        companyId: selectedClienteId,
+        instalacionId: selectedInstalacionId,
+      },
+    }).then(flashSaved).catch(flashSaved);
   };
 
-  const removeLinea = (idx: number) => {
-    setLineas((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  const updateLinea = (idx: number, patch: Partial<LineaItem>) => {
-    setLineas((prev) =>
-      prev.map((l, i) => {
-        if (i !== idx) return l;
-        const updated = { ...l, ...patch };
-        updated.subtotal = Math.round(
-          updated.precioUnitario * updated.cantidad * (1 - updated.descuento / 100),
-        );
-        return updated;
-      }),
-    );
+  const removeProducto = (productoId: string) => {
+    (updateOneRecord as any)({
+      objectNameSingular: 'producto',
+      idToUpdate: productoId,
+      updateOneRecordInput: { productosId: null, companyId: null, instalacionId: null },
+    });
   };
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -156,7 +184,6 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
     <div className="mgc-presupuesto-card">
       <span className="mgc-direccion-label">Presupuesto</span>
 
-      {/* ── Selectores en cascada ── */}
       <div className="mgc-pres-selects">
         <div className="mgc-pres-field">
           <label>Cliente</label>
@@ -167,7 +194,6 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
             placeholder="Buscar cliente..."
           />
         </div>
-
         <div className="mgc-pres-field">
           <label>Instalación</label>
           <SearchableSelect
@@ -178,7 +204,6 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
             disabled={!selectedClienteId}
           />
         </div>
-
         <div className="mgc-pres-field">
           <label>Contacto</label>
           <SearchableSelect
@@ -196,10 +221,8 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
         {!saving && saved && <span style={{ fontSize: 12, fontStyle: 'italic', color: '#fff', background: '#22c55e', borderRadius: 6, padding: '2px 10px' }}>✓ Guardado</span>}
       </div>
 
-      {/* ── Tabla de líneas ── */}
       <div className="mgc-pres-tabla-header">
         <span>Producto</span>
-        <span>Cant.</span>
         <span>P. Unit.</span>
         <span>Desc.%</span>
         <span>Subtotal</span>
@@ -207,60 +230,22 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
       </div>
 
       <div className="mgc-pres-tabla-body">
-        {lineas.map((l, idx) => (
-          <div key={idx} className="mgc-pres-tabla-row">
+        {lineas.map((l) => (
+          <div key={l.productoId} className="mgc-pres-tabla-row">
             <span title={l.descripcion}>{l.descripcion}</span>
-
-            <input
-              type="number"
-              min="1"
-              className="mgc-pres-tabla-input"
-              value={l.cantidad || ''}
-              placeholder="1"
-              onChange={(e) => updateLinea(idx, { cantidad: parseFloat(e.target.value) || 1 })}
-              onClick={stop}
-              onKeyDown={(e) => e.stopPropagation()}
-            />
-
-            <input
-              type="number"
-              min="0"
-              className="mgc-pres-tabla-input"
-              value={l.precioUnitario || ''}
-              placeholder="0"
-              onChange={(e) => updateLinea(idx, { precioUnitario: parseFloat(e.target.value) || 0 })}
-              onClick={stop}
-              onKeyDown={(e) => e.stopPropagation()}
-            />
-
-            {l.tieneDescuento ? (
-              <input
-                type="number"
-                min="0"
-                max="100"
-                className="mgc-pres-tabla-input"
-                value={l.descuento || ''}
-                placeholder="0"
-                onChange={(e) => updateLinea(idx, { descuento: Math.min(100, parseFloat(e.target.value) || 0) })}
-                onClick={stop}
-                onKeyDown={(e) => e.stopPropagation()}
-              />
-            ) : (
-              <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>
-            )}
-
+            <span>{fmt(l.precioUnitario)}</span>
+            <span>{l.tieneDescuento ? `${l.descuento}%` : '—'}</span>
             <span>{fmt(l.subtotal)}</span>
-
             <button
               className="mgc-pres-remove"
-              onClick={(e) => { stop(e); removeLinea(idx); }}
+              onClick={(e) => { stop(e); removeProducto(l.productoId); }}
             >
               ✕
             </button>
           </div>
         ))}
         {lineas.length === 0 && (
-          <div className="mgc-pres-empty">Sin líneas — agregá productos</div>
+          <div className="mgc-pres-empty">Sin productos — agregá usando el botón</div>
         )}
       </div>
 
@@ -273,7 +258,6 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
         + Agregar producto
       </button>
 
-      {/* ── Totales ── */}
       <div className="mgc-pres-totales">
         <div className="mgc-pres-total-row">
           <span>Neto</span><span>{fmt(totalNeto)}</span>
@@ -289,7 +273,7 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
       {showPicker && (
         <ProductoPickerPopup
           productos={productosFiltrados}
-          onConfirm={(linea) => { addLinea(linea); setShowPicker(false); }}
+          onConfirm={(productoId) => { addProducto(productoId); setShowPicker(false); }}
           onClose={() => setShowPicker(false)}
         />
       )}
