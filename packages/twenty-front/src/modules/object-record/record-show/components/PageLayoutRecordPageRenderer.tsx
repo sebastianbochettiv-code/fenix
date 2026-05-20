@@ -3,6 +3,9 @@ import { RecordShowSidePanelOpenRecordButton } from '@/command-menu-item/compone
 import { InformationBannerDeletedRecord } from '@/information-banner/components/deleted-record/InformationBannerDeletedRecord';
 import { RecordShowContainerContextStoreTargetedRecordsEffect } from '@/object-record/record-show/components/RecordShowContainerContextStoreTargetedRecordsEffect';
 import { DireccionMapCard } from '@/object-record/record-show/components/DireccionMapCard';
+import { PresupuestoCard } from '@/object-record/record-show/components/PresupuestoCard';
+import { VariableEditorCard } from '@/object-record/record-show/components/VariableEditorCard';
+import { ConexionManagerCard } from '@/object-record/record-show/components/ConexionManagerCard';
 import { RecordShowEffect } from '@/object-record/record-show/components/RecordShowEffect';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
 import { PageLayoutRenderer } from '@/page-layout/components/PageLayoutRenderer';
@@ -94,7 +97,7 @@ export const PageLayoutRecordPageRenderer = ({
       <StyledShowPageRightContainer>
         {targetRecordIdentifier.targetObjectNameSingular === 'instalacion' ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-            <div style={{ flex: '0 0 70%', overflowY: 'auto' }}>
+            <div style={{ flex: '0 0 50%', overflowY: 'auto' }}>
               <LayoutRenderingProvider
                 value={{
                   targetRecordIdentifier: {
@@ -110,8 +113,74 @@ export const PageLayoutRecordPageRenderer = ({
                 )}
               </LayoutRenderingProvider>
             </div>
-            <div style={{ flex: '0 0 30%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ flex: '0 0 50%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <DireccionMapCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : targetRecordIdentifier.targetObjectNameSingular === 'variable' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 30%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 70%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <VariableEditorCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : targetRecordIdentifier.targetObjectNameSingular === 'conexion' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 30%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 70%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <ConexionManagerCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : targetRecordIdentifier.targetObjectNameSingular === 'presupuesto' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 30%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 70%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <PresupuestoCard recordId={targetRecordIdentifier.id} />
             </div>
           </div>
         ) : (

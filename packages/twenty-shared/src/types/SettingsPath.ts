@@ -89,4 +89,8 @@ export enum SettingsPath {
   RoleDetail = 'members/roles/:roleId',
   RoleObjectLevel = 'members/roles/:roleId/object/:objectMetadataId',
   RoleAddObjectLevel = 'members/roles/:roleId/add-object-permission',
+
+  MagoChicVariables = 'magochic/variables',
+  MagoChicVariableDetail = 'magochic/variables/:variableId',
+  MagoChicConexiones = 'magochic/conexiones',
 }

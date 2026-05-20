@@ -43,46 +43,16 @@ form {
   flex-shrink: 0;
 }
 
-.mgc-direccion-error {
-  font-size: 12px;
-  color: #f87171;
-  padding: 6px 8px;
-  background: rgba(248,113,113,0.08);
+/* Input de búsqueda Google — fuera del canvas del mapa para que pac-container no quede clipeado */
+.mgc-map-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
   flex-shrink: 0;
-}
-
-.mgc-direccion-input {
-  display: block !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  border-radius: 6px !important;
-  color: #ffffff !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 13px !important;
-  outline: none !important;
-  padding: 7px 10px !important;
-  margin-bottom: 8px !important;
-  flex-shrink: 0 !important;
-}
-
-.mgc-direccion-input:focus {
-  border-color: rgba(255,255,255,0.25) !important;
-}
-
-.mgc-direccion-input::placeholder {
-  color: rgba(255,255,255,0.3) !important;
-}
-
-.mgc-direccion-map {
-  flex: 1;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  min-height: 0;
 }
 
 .mgc-direccion-placeholder {
@@ -92,28 +62,887 @@ form {
   justify-content: center;
   color: rgba(255,255,255,0.2);
   font-size: 12px;
+  text-align: center;
+  padding: 0 16px;
 }
 
-/* Google Maps pac-container dentro del contexto dark */
+/* Dropdown de sugerencias — sobre el panel de Twenty */
 .pac-container {
-  background: #1f2128 !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  border-radius: 6px !important;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.6) !important;
-  margin-top: 2px !important;
-  font-family: 'Inter', sans-serif !important;
+  z-index: 99999 !important;
 }
-.pac-container::after { display: none !important; }
-.pac-item {
-  border-top: 1px solid rgba(255,255,255,0.06) !important;
-  color: rgba(255,255,255,0.85) !important;
-  padding: 8px 12px !important;
-  font-size: 12px !important;
-  line-height: 1.4 !important;
-  cursor: pointer !important;
+
+/* ── Mago Chic — PresupuestoCard ── */
+.mgc-presupuesto-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  gap: 8px;
+  overflow-y: auto;
 }
-.pac-item:first-child { border-top: none !important; }
-.pac-item:hover, .pac-item-selected { background: rgba(255,255,255,0.07) !important; }
-.pac-icon { display: none !important; }
-.pac-item-query { color: rgba(255,255,255,0.9) !important; font-size: 12px !important; }
-.pac-matched { font-weight: 600 !important; }
+
+.mgc-pres-selects {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mgc-pres-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mgc-pres-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.mgc-pres-field select {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  padding: 5px 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+.mgc-pres-field select:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mgc-pres-field select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+/* Tabla líneas */
+.mgc-pres-tabla-header,
+.mgc-pres-tabla-row {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 0.6fr 1fr 24px;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 4px;
+}
+
+.mgc-pres-tabla-header {
+  color: rgba(255,255,255,0.35);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 4px;
+}
+
+.mgc-pres-tabla-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 48px;
+  max-height: 180px;
+}
+
+.mgc-pres-tabla-row {
+  color: rgba(255,255,255,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.mgc-pres-tabla-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mgc-pres-remove {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px;
+  line-height: 1;
+}
+
+.mgc-pres-remove:hover {
+  color: rgba(255,80,80,0.8);
+}
+
+.mgc-pres-empty {
+  color: rgba(255,255,255,0.2);
+  font-size: 12px;
+  padding: 12px 4px;
+  text-align: center;
+}
+
+.mgc-pres-add-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 12px;
+  text-align: left;
+  width: fit-content;
+}
+
+.mgc-pres-add-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+}
+
+/* Totales */
+.mgc-pres-totales {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 8px;
+}
+
+.mgc-pres-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  padding: 1px 4px;
+}
+
+.mgc-pres-total-bruto {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+.mgc-pres-guardar-btn {
+  background: #3b6fd4;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  align-self: flex-end;
+}
+
+.mgc-pres-guardar-btn:hover:not(:disabled) {
+  background: #4a7de0;
+}
+
+.mgc-pres-guardar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── SearchableSelect ── */
+.mgc-ss-container {
+  position: relative;
+  flex: 1;
+}
+.mgc-ss-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.mgc-ss-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  gap: 6px;
+}
+.mgc-ss-trigger:hover {
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+}
+.mgc-ss-placeholder { color: rgba(255,255,255,0.3); }
+.mgc-ss-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mgc-ss-arrow { font-size: 8px; opacity: 0.5; flex-shrink: 0; }
+.mgc-ss-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #1e1e2e;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  z-index: 999;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.mgc-ss-search {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 12px;
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+.mgc-ss-search::placeholder { color: rgba(255,255,255,0.25); }
+.mgc-ss-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.mgc-ss-option {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+}
+.mgc-ss-option:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.mgc-ss-option-selected { color: #818cf8; font-weight: 600; }
+.mgc-ss-clear { color: rgba(255,255,255,0.25); font-style: italic; font-size: 11px; }
+.mgc-ss-empty { padding: 10px 12px; font-size: 12px; color: rgba(255,255,255,0.2); }
+
+/* ── Mago Chic — ProductoPickerPopup ── */
+.mgc-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mgc-popup-box {
+  background: #1e1e2e;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  width: 420px;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mgc-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.mgc-popup-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.mgc-popup-close:hover { color: #fff; }
+
+.mgc-popup-search {
+  margin: 10px 12px 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+}
+
+.mgc-popup-search::placeholder { color: rgba(255,255,255,0.3); }
+
+.mgc-popup-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+  max-height: 180px;
+}
+
+.mgc-popup-item {
+  padding: 7px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+}
+
+.mgc-popup-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.mgc-popup-item.selected {
+  background: rgba(59,111,212,0.25);
+  color: #fff;
+}
+
+.mgc-popup-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+}
+
+.mgc-popup-form {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mgc-popup-form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mgc-popup-form-row label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  width: 80px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mgc-popup-form-row input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  padding: 5px 8px;
+  outline: none;
+}
+
+.mgc-popup-subtotal {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  text-align: right;
+  padding-top: 2px;
+}
+
+.mgc-popup-subtotal strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.mgc-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.mgc-popup-cancel {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 16px;
+}
+
+.mgc-popup-cancel:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+.mgc-popup-confirm {
+  background: #3b6fd4;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 20px;
+}
+
+.mgc-popup-confirm:hover:not(:disabled) { background: #4a7de0; }
+
+.mgc-popup-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Mago Chic — VariableEditorCard ── */
+.mgc-ve-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mgc-ve-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.mgc-ve-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mgc-ve-levels {
+  font-size: 12px;
+  color: #818cf8;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mgc-ve-btn-primary {
+  background: #6366f1;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+}
+.mgc-ve-btn-primary:hover:not(:disabled) { background: #4f46e5; }
+.mgc-ve-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.mgc-ve-btn-secondary {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 12px;
+}
+.mgc-ve-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.mgc-ve-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mgc-ve-empty {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 8px;
+}
+
+.mgc-ve-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left-width: 3px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.mgc-ve-toggle {
+  width: 16px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+  user-select: none;
+}
+.mgc-ve-toggle:hover { color: #fff; }
+
+.mgc-ve-node-name {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+.mgc-ve-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(99,102,241,0.2);
+  color: #818cf8;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mgc-ve-count {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.mgc-ve-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.mgc-ve-btn-add {
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 4px;
+  color: #4ade80;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 3px 9px;
+}
+.mgc-ve-btn-add:hover { background: rgba(34,197,94,0.25); }
+
+.mgc-ve-btn-edit {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 3px 9px;
+}
+.mgc-ve-btn-edit:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.mgc-ve-btn-del {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 4px;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 3px 7px;
+}
+.mgc-ve-btn-del:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+.mgc-ve-btn-del:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.mgc-ve-form {
+  background: rgba(99,102,241,0.06);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mgc-ve-form-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mgc-ve-form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mgc-ve-form-row label {
+  width: 60px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mgc-ve-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+}
+.mgc-ve-input:focus { border-color: #6366f1; }
+.mgc-ve-input-sm { flex: 0 0 80px; }
+
+.mgc-ve-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+/* ── Mago Chic — ConexionManagerCard ── */
+.mgc-cm-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mgc-cm-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mgc-cm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mgc-cm-field label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mgc-cm-field-full {
+  grid-column: 1 / -1;
+}
+
+.mgc-cm-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.mgc-cm-input:focus { border-color: #6366f1; }
+.mgc-cm-input option { background: #1e1e2e; }
+
+.mgc-cm-preview {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mgc-cm-preview-header {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.mgc-cm-levels {
+  color: #6366f1;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mgc-cm-tree-preview {
+  padding: 10px 12px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.mgc-cm-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mgc-cm-summary-chip {
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 4px;
+  color: #a5b4fc;
+  font-size: 12px;
+  font-family: monospace;
+  padding: 2px 8px;
+}
+
+.mgc-cm-summary-var {
+  background: rgba(139,92,246,0.15);
+  border-color: rgba(139,92,246,0.25);
+  color: #c4b5fd;
+}
+
+.mgc-cm-summary-dot {
+  color: rgba(255,255,255,0.3);
+  font-size: 13px;
+}
+
+/* ── Mago Chic — TwentyHierarchicalSelect ── */
+.mgc-hier-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mgc-hier-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mgc-hier-nivel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mgc-hier-nivel label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mgc-hier-complete {
+  padding: 6px 10px;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 5px;
+  font-size: 12px;
+  color: #818cf8;
+  font-style: italic;
+}
+
+/* ── Mago Chic — Settings Pages (Variables / Conexiones) ── */
+
+.mgc-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mgc-settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mgc-settings-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.87);
+  margin: 0 0 4px 0;
+}
+
+.mgc-settings-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.mgc-settings-form {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mgc-settings-form-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mgc-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mgc-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mgc-settings-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mgc-settings-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mgc-settings-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.mgc-settings-row-sub {
+  font-size: 11px;
+  color: #a5b4fc;
+  font-family: monospace;
+}
+
+.mgc-settings-row-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.40);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mgc-settings-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}

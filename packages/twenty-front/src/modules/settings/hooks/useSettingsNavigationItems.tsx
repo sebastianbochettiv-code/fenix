@@ -35,6 +35,8 @@ import {
   IconSparkles,
   IconUserCircle,
   IconUsers,
+  IconList,
+  IconLink,
 } from 'twenty-ui/display';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
 
@@ -172,6 +174,22 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           Icon: IconKey,
           isAdvanced: true,
           isHidden: !permissionMap[PermissionFlagType.SECURITY],
+        },
+      ],
+    },
+    {
+      label: 'Mago Chic',
+      items: [
+        {
+          label: 'Variables',
+          path: SettingsPath.MagoChicVariables,
+          Icon: IconList,
+          matchSubPages: true,
+        },
+        {
+          label: 'Conexiones',
+          path: SettingsPath.MagoChicConexiones,
+          Icon: IconLink,
         },
       ],
     },

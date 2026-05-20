@@ -573,6 +573,24 @@ const SettingsRoleAddObjectLevel = lazy(() =>
   ),
 );
 
+const SettingsMagoChicVariables = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicVariables').then((module) => ({
+    default: module.SettingsMagoChicVariables,
+  })),
+);
+
+const SettingsMagoChicVariableDetail = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicVariableDetail').then((module) => ({
+    default: module.SettingsMagoChicVariableDetail,
+  })),
+);
+
+const SettingsMagoChicConexiones = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicConexiones').then((module) => ({
+    default: module.SettingsMagoChicConexiones,
+  })),
+);
+
 type SettingsRoutesProps = {
   isFunctionSettingsEnabled?: boolean;
   isAdminPageEnabled?: boolean;
@@ -959,6 +977,10 @@ export const SettingsRoutes = ({ isAdminPageEnabled }: SettingsRoutesProps) => (
       >
         <Route path={SettingsPath.Updates} element={<SettingsUpdates />} />
       </Route>
+
+      <Route path={SettingsPath.MagoChicVariables} element={<SettingsMagoChicVariables />} />
+      <Route path={SettingsPath.MagoChicVariableDetail} element={<SettingsMagoChicVariableDetail />} />
+      <Route path={SettingsPath.MagoChicConexiones} element={<SettingsMagoChicConexiones />} />
     </Routes>
   </Suspense>
 );
