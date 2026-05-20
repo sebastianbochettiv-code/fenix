@@ -6,6 +6,9 @@ import { DireccionMapCard } from '@/object-record/record-show/components/Direcci
 import { PresupuestoCard } from '@/object-record/record-show/components/PresupuestoCard';
 import { VariableEditorCard } from '@/object-record/record-show/components/VariableEditorCard';
 import { ConexionManagerCard } from '@/object-record/record-show/components/ConexionManagerCard';
+import { ClienteInstalacionesCard } from '@/object-record/record-show/components/ClienteInstalacionesCard';
+import { ProductoClienteInstalacionCard } from '@/object-record/record-show/components/ProductoClienteInstalacionCard';
+import { ProductoCostosCard } from '@/object-record/record-show/components/ProductoCostosCard';
 import { RecordShowEffect } from '@/object-record/record-show/components/RecordShowEffect';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
 import { PageLayoutRenderer } from '@/page-layout/components/PageLayoutRenderer';
@@ -95,7 +98,29 @@ export const PageLayoutRecordPageRenderer = ({
       )}
 
       <StyledShowPageRightContainer>
-        {targetRecordIdentifier.targetObjectNameSingular === 'instalacion' ? (
+        {targetRecordIdentifier.targetObjectNameSingular === 'company' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 60%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 40%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <ClienteInstalacionesCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : targetRecordIdentifier.targetObjectNameSingular === 'instalacion' ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             <div style={{ flex: '0 0 50%', overflowY: 'auto' }}>
               <LayoutRenderingProvider
@@ -181,6 +206,31 @@ export const PageLayoutRecordPageRenderer = ({
             </div>
             <div style={{ flex: '0 0 70%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <PresupuestoCard recordId={targetRecordIdentifier.id} />
+            </div>
+          </div>
+        ) : targetRecordIdentifier.targetObjectNameSingular === 'producto' ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ flex: '0 0 45%', overflowY: 'auto' }}>
+              <LayoutRenderingProvider
+                value={{
+                  targetRecordIdentifier: {
+                    id: targetRecordIdentifier.id,
+                    targetObjectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
+                  },
+                  layoutType: PageLayoutType.RECORD_PAGE,
+                  isInSidePanel,
+                }}
+              >
+                {isDefined(pageLayoutId) && (
+                  <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+                )}
+              </LayoutRenderingProvider>
+            </div>
+            <div style={{ flex: '0 0 30%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <ProductoClienteInstalacionCard recordId={targetRecordIdentifier.id} />
+            </div>
+            <div style={{ flex: '0 0 25%', overflowY: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <ProductoCostosCard recordId={targetRecordIdentifier.id} />
             </div>
           </div>
         ) : (

@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
-import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { SearchableSelect } from './SearchableSelect';
 
@@ -54,25 +53,46 @@ export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [embedQuery, setEmbedQuery] = useState('');
   const [sdkReady, setSdkReady] = useState(mapsLoaded);
+  const [selectedClienteId, setSelectedClienteId] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const { updateOneRecord } = useUpdateOneRecord();
-
-  const { record: instalacion } = useFindOneRecord({
-    objectNameSingular: 'instalacion',
-    objectRecordId: recordId,
-  });
-
   const { records: companies } = useFindManyRecords({ objectNameSingular: 'company' });
+  const { records: instalacionRecords } = useFindManyRecords({
+    objectNameSingular: 'instalacion',
+    filter: { id: { eq: recordId } },
+    recordGqlFields: { id: true, company: { id: true }, direccion: true },
+  } as any);
+  const instalacionActual = (instalacionRecords as any[])[0];
+
+  useEffect(() => {
+    if (instalacionActual) {
+      setSelectedClienteId(instalacionActual.company?.id ?? '');
+      if (instalacionActual.direccion) setEmbedQuery(instalacionActual.direccion);
+    }
+  }, [instalacionActual?.company?.id, instalacionActual?.direccion]);
 
   const clienteOptions = (companies as any[]).map((c) => ({ id: c.id, label: c.name }));
-  const currentClienteId = (instalacion as any)?.company?.id ?? '';
 
-  const handleClienteChange = (id: string) => {
-    updateOneRecord({
+  const flashSaved = useCallback(() => {
+    setSaving(false);
+    setSaved(true);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
+  }, []);
+
+  const handleClienteChange = useCallback((id: string) => {
+    setSelectedClienteId(id);
+    setSaving(true);
+    setSaved(false);
+    (updateOneRecord as any)({
       objectNameSingular: 'instalacion',
       idToUpdate: recordId,
-      updateOneRecordInput: { companyId: id || null } as any,
-    });
-  };
+      updateOneRecordInput: { companyId: id || null },
+    }).then(flashSaved).catch(flashSaved);
+  }, [updateOneRecord, recordId, flashSaved]);
 
   const saveAddress = (address: string) => {
     if (!address.trim()) return;
@@ -112,17 +132,20 @@ export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
     <div className="mgc-direccion-card">
       <span className="mgc-direccion-label">Instalación</span>
 
-      {/* ── Cliente ── */}
-      <div className="mgc-pres-field" style={{ marginBottom: 10 }}>
+      <div className="mgc-pres-field" style={{ marginBottom: 4 }}>
         <label style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', width: 90, flexShrink: 0 }}>
           Cliente
         </label>
         <SearchableSelect
           options={clienteOptions}
-          value={currentClienteId}
+          value={selectedClienteId}
           onChange={handleClienteChange}
           placeholder="Buscar cliente..."
         />
+      </div>
+      <div style={{ padding: '0 0 8px', minHeight: 20 }}>
+        {saving && <span style={{ fontSize: 12, fontStyle: 'italic', opacity: 0.5, color: 'var(--t-font-color-light)' }}>Guardando...</span>}
+        {!saving && saved && <span style={{ fontSize: 12, fontStyle: 'italic', color: '#fff', background: '#22c55e', borderRadius: 6, padding: '2px 10px' }}>✓ Guardado</span>}
       </div>
 
       {/* ── Dirección ── */}

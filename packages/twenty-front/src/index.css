@@ -47,12 +47,14 @@ form {
 .mgc-map-search-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--t-border-color-strong);
   border-radius: 4px;
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
   flex-shrink: 0;
+  background-color: var(--t-background-secondary);
+  color: var(--t-font-color-primary);
 }
 
 .mgc-direccion-placeholder {
@@ -165,6 +167,23 @@ form {
   white-space: nowrap;
 }
 
+.mgc-pres-tabla-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: var(--t-font-color-primary);
+  font-size: 12px;
+  padding: 3px 6px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.mgc-pres-tabla-input:focus {
+  border-color: rgba(59,111,212,0.6);
+  background: rgba(255,255,255,0.08);
+}
+
 .mgc-pres-remove {
   background: none;
   border: none;
@@ -248,6 +267,75 @@ form {
 .mgc-pres-guardar-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ── ClienteInstalacionesCard ── */
+.mgc-ci-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.mgc-ci-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mgc-ci-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.02em;
+}
+.mgc-ci-count {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.mgc-ci-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mgc-ci-empty {
+  color: rgba(255,255,255,0.2);
+  font-size: 12px;
+  padding: 12px 0;
+}
+.mgc-ci-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mgc-ci-row:hover {
+  background: rgba(99,102,241,0.12);
+  border-color: rgba(99,102,241,0.35);
+}
+.mgc-ci-row-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+.mgc-ci-row-arrow {
+  font-size: 14px;
+  color: rgba(99,102,241,0.6);
+  transition: color 0.15s;
+}
+.mgc-ci-row:hover .mgc-ci-row-arrow {
+  color: #818cf8;
 }
 
 /* ── SearchableSelect ── */
