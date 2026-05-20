@@ -43,7 +43,7 @@ form {
   flex-shrink: 0;
 }
 
-/* Input de búsqueda Google — fuera del canvas del mapa para que pac-container no quede clipeado */
+/* Input de dirección Google */
 .mgc-map-search-input {
   width: 100%;
   padding: 8px 12px;
@@ -68,10 +68,30 @@ form {
   padding: 0 16px;
 }
 
-/* Dropdown de sugerencias — sobre el panel de Twenty */
-.pac-container {
-  z-index: 99999 !important;
+/* Dropdown de sugerencias propio (AutocompleteService) */
+.mgc-pac-list {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #1e1e2e;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  z-index: 9999;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
+.mgc-pac-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mgc-pac-option:hover { background: rgba(255,255,255,0.07); }
+.mgc-pac-main { font-size: 13px; color: rgba(255,255,255,0.85); }
+.mgc-pac-secondary { font-size: 11px; color: rgba(255,255,255,0.35); }
 
 /* ── Mago Chic — PresupuestoCard ── */
 .mgc-presupuesto-card {

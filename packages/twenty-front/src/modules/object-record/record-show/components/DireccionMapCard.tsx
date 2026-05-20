@@ -1,49 +1,35 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { SearchableSelect } from './SearchableSelect';
 
-declare global {
-  interface Window { google: any; }
-}
+declare global { interface Window { google: any } }
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
+const API_KEY = import.meta.env.REACT_APP_GOOGLE_MAPS_API_KEY as string;
 
 let mapsLoaded = false;
 let mapsLoading = false;
-const mapsCallbacks: Array<{ ok: () => void; err: () => void }> = [];
+let mapsError: Error | null = null;
+const mapsCallbacks: Array<{ success: () => void; error?: (e: Error) => void }> = [];
 
-function loadGoogleMaps(ok: () => void, err: () => void) {
-  if (mapsLoaded) { ok(); return; }
-  mapsCallbacks.push({ ok, err });
+function loadGoogleMaps(callback: () => void, errorCallback?: (e: Error) => void) {
+  if (mapsLoaded) { callback(); return; }
+  if (mapsError) { errorCallback?.(mapsError); return; }
+  mapsCallbacks.push({ success: callback, error: errorCallback });
   if (mapsLoading) return;
   mapsLoading = true;
-  const existing = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
-  if (existing) {
-    if (window.google?.maps) {
-      mapsLoaded = true; mapsLoading = false;
-      mapsCallbacks.forEach((cb) => cb.ok());
-      mapsCallbacks.length = 0;
-    } else {
-      existing.addEventListener('load', () => {
-        mapsLoaded = true; mapsLoading = false;
-        mapsCallbacks.forEach((cb) => cb.ok());
-        mapsCallbacks.length = 0;
-      });
-    }
-    return;
-  }
   const script = document.createElement('script');
   script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&language=es`;
   script.async = true;
   script.onload = () => {
     mapsLoaded = true; mapsLoading = false;
-    mapsCallbacks.forEach((cb) => cb.ok());
+    mapsCallbacks.forEach(cb => cb.success());
     mapsCallbacks.length = 0;
   };
   script.onerror = () => {
     mapsLoading = false;
-    mapsCallbacks.forEach((cb) => cb.err());
+    mapsError = new Error('Error al cargar Google Maps. Verificá el API Key.');
+    mapsCallbacks.forEach(cb => cb.error?.(mapsError!));
     mapsCallbacks.length = 0;
   };
   document.head.appendChild(script);
@@ -51,8 +37,10 @@ function loadGoogleMaps(ok: () => void, err: () => void) {
 
 export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [embedQuery, setEmbedQuery] = useState('');
-  const [sdkReady, setSdkReady] = useState(mapsLoaded);
+  const autocompleteRef = useRef<any>(null);
+
+  const [ready, setReady] = useState(mapsLoaded);
+  const [sdkError, setSdkError] = useState<string | null>(null);
   const [selectedClienteId, setSelectedClienteId] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -70,23 +58,23 @@ export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
   useEffect(() => {
     if (instalacionActual) {
       setSelectedClienteId(instalacionActual.company?.id ?? '');
-      if (instalacionActual.direccion) setEmbedQuery(instalacionActual.direccion);
+      if (instalacionActual.direccion && inputRef.current) {
+        inputRef.current.value = instalacionActual.direccion;
+      }
     }
   }, [instalacionActual?.company?.id, instalacionActual?.direccion]);
 
-  const clienteOptions = (companies as any[]).map((c) => ({ id: c.id, label: c.name }));
+  const clienteOptions = (companies as any[]).map((c: any) => ({ id: c.id, label: c.name }));
 
   const flashSaved = useCallback(() => {
-    setSaving(false);
-    setSaved(true);
+    setSaving(false); setSaved(true);
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
   }, []);
 
   const handleClienteChange = useCallback((id: string) => {
     setSelectedClienteId(id);
-    setSaving(true);
-    setSaved(false);
+    setSaving(true); setSaved(false);
     (updateOneRecord as any)({
       objectNameSingular: 'instalacion',
       idToUpdate: recordId,
@@ -94,36 +82,41 @@ export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
     }).then(flashSaved).catch(flashSaved);
   }, [updateOneRecord, recordId, flashSaved]);
 
-  const saveAddress = (address: string) => {
+  const saveAddress = useCallback((address: string) => {
     if (!address.trim()) return;
-    setEmbedQuery(address.trim());
-    updateOneRecord({
+    (updateOneRecord as any)({
       objectNameSingular: 'instalacion',
       idToUpdate: recordId,
       updateOneRecordInput: { direccion: address.trim() },
     });
-  };
+  }, [updateOneRecord, recordId]);
 
+  // Cargar SDK — igual que Operaciones
   useEffect(() => {
-    if (mapsLoaded) { setSdkReady(true); return; }
-    loadGoogleMaps(() => setSdkReady(true), () => {});
+    loadGoogleMaps(
+      () => setReady(true),
+      (err) => setSdkError(err.message)
+    );
   }, []);
 
+  // Adjuntar Autocomplete — igual que Operaciones
   useEffect(() => {
-    if (!sdkReady || !inputRef.current) return;
-    const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
+    if (!ready || !inputRef.current || autocompleteRef.current) return;
+
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
       componentRestrictions: { country: 'cl' },
       fields: ['formatted_address'],
     });
-    ac.addListener('place_changed', () => {
-      const place = ac.getPlace();
+
+    autocompleteRef.current.addListener('place_changed', () => {
+      const place = autocompleteRef.current.getPlace();
       if (place?.formatted_address) {
-        saveAddress(place.formatted_address as string);
+        saveAddress(place.formatted_address);
       }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sdkReady]);
+  }, [ready, saveAddress]);
 
+  const embedQuery = instalacionActual?.direccion ?? '';
   const embedUrl = embedQuery
     ? `https://maps.google.com/maps?q=${encodeURIComponent(embedQuery)}&output=embed&hl=es`
     : null;
@@ -148,23 +141,20 @@ export const DireccionMapCard = ({ recordId }: { recordId: string }) => {
         {!saving && saved && <span style={{ fontSize: 12, fontStyle: 'italic', color: '#fff', background: '#22c55e', borderRadius: 6, padding: '2px 10px' }}>✓ Guardado</span>}
       </div>
 
-      {/* ── Dirección ── */}
+      {sdkError && (
+        <div style={{ padding: 8, marginBottom: 8, background: '#2a1a1a', border: '1px solid #c00', borderRadius: 4, fontSize: 12, color: '#f88' }}>
+          ⚠️ {sdkError}
+        </div>
+      )}
+
+      {/* Input idéntico al de Operaciones — uncontrolled, sin stopPropagation */}
       <input
         ref={inputRef}
         type="text"
         className="mgc-map-search-input"
-        placeholder="Buscar dirección..."
-        onKeyDown={(e) => {
-          e.stopPropagation();
-          if (e.key === 'Enter' && inputRef.current?.value?.trim()) {
-            saveAddress(inputRef.current.value.trim());
-          }
-        }}
-        onBlur={() => {
-          const val = inputRef.current?.value?.trim();
-          if (val) saveAddress(val);
-        }}
-        onClick={(e) => e.stopPropagation()}
+        placeholder={!ready ? 'Cargando Google Maps...' : 'Buscar dirección...'}
+        readOnly={!ready}
+        defaultValue={instalacionActual?.direccion ?? ''}
       />
 
       <div style={{ flex: 1, minHeight: 0, marginTop: 8 }}>
