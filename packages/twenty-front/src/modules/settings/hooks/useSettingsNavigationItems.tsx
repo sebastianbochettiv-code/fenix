@@ -21,13 +21,18 @@ import {
   IconCalendarEvent,
   IconColorSwatch,
   type IconComponent,
+  IconCpu,
   IconCurrencyDollar,
   IconDoorEnter,
+  IconFile,
   IconHelpCircle,
   IconHierarchy2,
   IconKey,
+  IconLink,
+  IconList,
   IconMail,
   IconMessage,
+  IconPuzzle,
   IconPlug,
   IconRocket,
   IconServer,
@@ -35,8 +40,6 @@ import {
   IconSparkles,
   IconUserCircle,
   IconUsers,
-  IconList,
-  IconLink,
 } from 'twenty-ui/display';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
 
@@ -178,7 +181,7 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
       ],
     },
     {
-      label: 'Mago Chic',
+      label: 'Fénix core',
       items: [
         {
           label: 'Variables',
@@ -190,6 +193,34 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           label: 'Conexiones',
           path: SettingsPath.MagoChicConexiones,
           Icon: IconLink,
+        },
+        {
+          label: 'IA',
+          path: SettingsPath.MagoChicIAAgentes,
+          Icon: IconSparkles,
+          matchSubPages: true,
+          subItems: [
+            {
+              label: 'Agentes',
+              path: SettingsPath.MagoChicIAAgentes,
+              Icon: IconCpu,
+              indentationLevel: 2,
+            },
+            {
+              label: 'Plantillas',
+              path: SettingsPath.MagoChicIAPlantillas,
+              Icon: IconFile,
+              indentationLevel: 2,
+              matchSubPages: true,
+            },
+            {
+              label: 'Componentes',
+              path: SettingsPath.MagoChicIAComponentes,
+              Icon: IconPuzzle,
+              indentationLevel: 2,
+              matchSubPages: true,
+            },
+          ],
         },
       ],
     },

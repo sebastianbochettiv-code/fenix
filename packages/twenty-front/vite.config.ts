@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
 
     server: {
       port: port,
+      strictPort: true,
       proxy: {
         '/graphql': { target: 'http://localhost:3100', changeOrigin: true, ws: true },
         '/metadata': { target: 'http://localhost:3100', changeOrigin: true },
