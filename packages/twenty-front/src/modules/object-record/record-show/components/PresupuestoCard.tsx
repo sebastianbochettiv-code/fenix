@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { ProductoPickerPopup } from './ProductoPickerPopup';
+import { PresupuestoPreviewPopup } from './PresupuestoPreviewPopup';
 import { SearchableSelect } from './SearchableSelect';
 
 type LineaItem = {
@@ -24,6 +25,7 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
   const [selectedInstalacionId, setSelectedInstalacionId] = useState('');
   const [selectedContactoId, setSelectedContactoId] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,7 +37,7 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
   const { records: presupuestoRecords } = useFindManyRecords({
     objectNameSingular: 'presupuesto',
     filter: { id: { eq: recordId } },
-    recordGqlFields: { id: true, company: { id: true }, instalacion: { id: true }, person: { id: true } },
+    recordGqlFields: { id: true, name: true, company: { id: true }, instalacion: { id: true }, person: { id: true } },
   } as any);
   const presupuestoActual = (presupuestoRecords as any[])[0];
 
@@ -182,7 +184,16 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
 
   return (
     <div className="mgc-presupuesto-card">
-      <span className="mgc-direccion-label">Presupuesto</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span className="mgc-direccion-label">Presupuesto</span>
+        <button
+          className="mgc-pres-add-btn"
+          style={{ marginRight: 16 }}
+          onClick={(e) => { stop(e); setShowPreview(true); }}
+        >
+          🧾 Ver
+        </button>
+      </div>
 
       <div className="mgc-pres-selects">
         <div className="mgc-pres-field">
@@ -251,6 +262,7 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
 
       <button
         className="mgc-pres-add-btn"
+        style={{ width: '20%', minWidth: 140 }}
         disabled={!selectedClienteId || !selectedInstalacionId}
         title={!selectedClienteId || !selectedInstalacionId ? 'Seleccioná cliente e instalación primero' : undefined}
         onClick={(e) => { stop(e); setShowPicker(true); }}
@@ -277,6 +289,28 @@ export const PresupuestoCard = ({ recordId }: { recordId: string }) => {
           onClose={() => setShowPicker(false)}
         />
       )}
+
+      {showPreview && (() => {
+        const clienteNombre = (companies as any[]).find((c) => c.id === selectedClienteId)?.name ?? '';
+        const instalacionNombre = (instalaciones as any[]).find((i) => i.id === selectedInstalacionId)?.name ?? '';
+        const contactoRec = (personas as any[]).find((p) => p.id === selectedContactoId);
+        const contactoNombre = contactoRec
+          ? `${contactoRec.name?.firstName ?? ''} ${contactoRec.name?.lastName ?? ''}`.trim()
+          : '';
+        return (
+          <PresupuestoPreviewPopup
+            recordName={presupuestoActual?.name ?? recordId}
+            clienteNombre={clienteNombre}
+            instalacionNombre={instalacionNombre}
+            contactoNombre={contactoNombre}
+            lineas={lineas}
+            totalNeto={totalNeto}
+            totalIVA={totalIVA}
+            totalBruto={totalBruto}
+            onClose={() => setShowPreview(false)}
+          />
+        );
+      })()}
     </div>
   );
 };

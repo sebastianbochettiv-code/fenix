@@ -93,4 +93,9 @@ export enum SettingsPath {
   MagoChicVariables = 'magochic/variables',
   MagoChicVariableDetail = 'magochic/variables/:variableId',
   MagoChicConexiones = 'magochic/conexiones',
+  MagoChicIAAgentes = 'magochic/ia/agentes',
+  MagoChicIAPlantillas = 'magochic/ia/plantillas',
+  MagoChicIAPlantillaDiseno = 'magochic/ia/plantillas/:plantillaId',
+  MagoChicIAComponentes = 'magochic/ia/componentes',
+  MagoChicIAComponenteDetalle = 'magochic/ia/componentes/:componenteId',
 }

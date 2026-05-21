@@ -648,15 +648,15 @@ form {
 .mgc-ve-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .mgc-ve-btn-secondary {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--t-background-transparent-light);
+  border: 1px solid var(--t-border-color-medium);
   border-radius: 6px;
-  color: rgba(255,255,255,0.6);
+  color: var(--t-font-color-secondary);
   cursor: pointer;
   font-size: 12px;
   padding: 6px 12px;
 }
-.mgc-ve-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.mgc-ve-btn-secondary:hover { background: var(--t-background-transparent-medium); color: var(--t-font-color-primary); }
 
 .mgc-ve-tree {
   display: flex;
@@ -668,8 +668,8 @@ form {
   text-align: center;
   padding: 24px;
   font-size: 12px;
-  color: rgba(255,255,255,0.25);
-  border: 1px dashed rgba(255,255,255,0.1);
+  color: var(--t-font-color-light);
+  border: 1px dashed var(--t-border-color-medium);
   border-radius: 8px;
 }
 
@@ -678,8 +678,8 @@ form {
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--t-background-transparent-lighter);
+  border: 1px solid var(--t-border-color-light);
   border-left-width: 3px;
   border-radius: 5px;
   margin-bottom: 5px;
@@ -688,17 +688,17 @@ form {
 .mgc-ve-toggle {
   width: 16px;
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: var(--t-font-color-tertiary);
   cursor: pointer;
   flex-shrink: 0;
   user-select: none;
 }
-.mgc-ve-toggle:hover { color: #fff; }
+.mgc-ve-toggle:hover { color: var(--t-font-color-primary); }
 
 .mgc-ve-node-name {
   flex: 1;
   font-size: 13px;
-  color: rgba(255,255,255,0.85);
+  color: var(--t-font-color-primary);
   font-weight: 500;
 }
 
@@ -714,7 +714,7 @@ form {
 
 .mgc-ve-count {
   font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  color: var(--t-font-color-light);
   flex-shrink: 0;
 }
 
@@ -736,15 +736,15 @@ form {
 .mgc-ve-btn-add:hover { background: rgba(34,197,94,0.25); }
 
 .mgc-ve-btn-edit {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--t-background-transparent-light);
+  border: 1px solid var(--t-border-color-medium);
   border-radius: 4px;
-  color: rgba(255,255,255,0.5);
+  color: var(--t-font-color-tertiary);
   cursor: pointer;
   font-size: 11px;
   padding: 3px 9px;
 }
-.mgc-ve-btn-edit:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.mgc-ve-btn-edit:hover { background: var(--t-background-transparent-medium); color: var(--t-font-color-primary); }
 
 .mgc-ve-btn-del {
   background: rgba(239,68,68,0.1);
@@ -785,7 +785,7 @@ form {
 .mgc-ve-form-row label {
   width: 60px;
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: var(--t-font-color-tertiary);
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -793,10 +793,10 @@ form {
 
 .mgc-ve-input {
   flex: 1;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: var(--t-background-transparent-light);
+  border: 1px solid var(--t-border-color-strong);
   border-radius: 5px;
-  color: #fff;
+  color: var(--t-font-color-primary);
   font-size: 13px;
   padding: 6px 10px;
   outline: none;
@@ -833,7 +833,7 @@ form {
 
 .mgc-cm-field label {
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: var(--t-font-color-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -843,10 +843,10 @@ form {
 }
 
 .mgc-cm-input {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: var(--t-background-transparent-light);
+  border: 1px solid var(--t-border-color-strong);
   border-radius: 5px;
-  color: #fff;
+  color: var(--t-font-color-primary);
   font-size: 13px;
   padding: 7px 10px;
   outline: none;
@@ -854,11 +854,11 @@ form {
   box-sizing: border-box;
 }
 .mgc-cm-input:focus { border-color: #6366f1; }
-.mgc-cm-input option { background: #1e1e2e; }
+.mgc-cm-input option { background: var(--t-background-primary); color: var(--t-font-color-primary); }
 
 .mgc-cm-preview {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--t-background-transparent-lighter);
+  border: 1px solid var(--t-border-color-light);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -867,10 +867,10 @@ form {
   padding: 8px 12px;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: var(--t-font-color-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--t-border-color-light);
 }
 
 .mgc-cm-levels {
@@ -910,7 +910,7 @@ form {
 }
 
 .mgc-cm-summary-dot {
-  color: rgba(255,255,255,0.3);
+  color: var(--t-font-color-light);
   font-size: 13px;
 }
 
@@ -924,7 +924,7 @@ form {
 .mgc-hier-label {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.4);
+  color: var(--t-font-color-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -937,7 +937,7 @@ form {
 
 .mgc-hier-nivel label {
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: var(--t-font-color-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -966,27 +966,27 @@ form {
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--t-border-color-medium);
 }
 
 .mgc-settings-title {
   font-size: 15px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--t-font-color-primary);
   margin: 0 0 4px 0;
 }
 
 .mgc-settings-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--t-font-color-secondary);
   margin: 0;
   max-width: 480px;
   line-height: 1.5;
 }
 
 .mgc-settings-form {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: var(--t-background-transparent-lighter);
+  border: 1px solid var(--t-border-color-medium);
   border-radius: 8px;
   padding: 16px;
   display: flex;
@@ -997,7 +997,7 @@ form {
 .mgc-settings-form-title {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--t-font-color-secondary);
 }
 
 .mgc-settings-list {
@@ -1012,15 +1012,15 @@ form {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--t-background-transparent-lighter);
+  border: 1px solid var(--t-border-color-medium);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .mgc-settings-row:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t-background-transparent-light);
 }
 
 .mgc-settings-row-info {
@@ -1033,7 +1033,7 @@ form {
 .mgc-settings-row-name {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--t-font-color-primary);
 }
 
 .mgc-settings-row-sub {
@@ -1044,7 +1044,7 @@ form {
 
 .mgc-settings-row-desc {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.40);
+  color: var(--t-font-color-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

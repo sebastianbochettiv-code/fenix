@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
-import { useCreateOneRecord } from '@/object-record/hooks/useCreateOneRecord';
-import { useDeleteOneRecord } from '@/object-record/hooks/useDeleteOneRecord';
-import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
-import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
-import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import {
+  type Nodo,
+  loadNodos,
+  saveNodos,
+  loadVariables,
+} from './fenixVariablesUtils';
 import {
   buildNodoVariableTree,
   parseNivelLabels,
@@ -17,32 +18,24 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
   const [editingNode, setEditingNode] = useState<NodoVariable | null>(null);
   const [formData, setFormData] = useState({ name: '', padreId: '', orden: 0 });
   const [submitting, setSubmitting] = useState(false);
+  const [nodosFlat, setNodosFlat] = useState<Nodo[]>([]);
 
-  const { record: variable } = useFindOneRecord({
-    objectNameSingular: 'variable',
-    objectRecordId: recordId,
-  });
+  const variable = loadVariables().find((v) => v.id === recordId) ?? null;
+  const nivelLabels = parseNivelLabels(variable?.nivelLabels ?? '');
 
-  const { records: nodosFlat } = useFindManyRecords({
-    objectNameSingular: 'nodoVariable',
-    filter: { variable: { id: { eq: recordId } } },
-  } as any);
+  const reloadNodos = useCallback(() => {
+    const all = loadNodos().filter((n) => n.variableId === recordId);
+    setNodosFlat(all);
+  }, [recordId]);
+
+  useEffect(() => { reloadNodos(); }, [reloadNodos]);
 
   const arbol = buildNodoVariableTree(nodosFlat as any[]);
-  const nivelLabels = parseNivelLabels((variable as any)?.nivelLabels);
 
-  if (!autoExpandedRef.current && (nodosFlat as any[]).length > 0) {
+  if (!autoExpandedRef.current && nodosFlat.length > 0) {
     autoExpandedRef.current = true;
-    setExpanded(new Set((nodosFlat as any[]).map((n: any) => n.id)));
+    setExpanded(new Set(nodosFlat.map((n) => n.id)));
   }
-
-  const { createOneRecord: createNodo } = useCreateOneRecord({
-    objectNameSingular: 'nodoVariable',
-  });
-  const { updateOneRecord } = useUpdateOneRecord();
-  const { deleteOneRecord } = useDeleteOneRecord({
-    objectNameSingular: 'nodoVariable',
-  });
 
   const getLabelNivel = (nivel: number) =>
     nivelLabels[nivel] ||
@@ -52,14 +45,12 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
   const toggleNode = (id: string) => {
     setExpanded((prev) => {
       const s = new Set(prev);
-      if (s.has(id)) s.delete(id);
-      else s.add(id);
+      if (s.has(id)) s.delete(id); else s.add(id);
       return s;
     });
   };
 
-  const expandAll = () =>
-    setExpanded(new Set((nodosFlat as any[]).map((n: any) => n.id)));
+  const expandAll = () => setExpanded(new Set(nodosFlat.map((n) => n.id)));
   const collapseAll = () => setExpanded(new Set());
 
   const openCreateRoot = () => {
@@ -76,50 +67,41 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
 
   const openEdit = (node: NodoVariable) => {
     setEditingNode(node);
-    setFormData({
-      name: node.name,
-      padreId: node.nodoPadre?.id ?? '',
-      orden: node.orden ?? 0,
-    });
+    setFormData({ name: node.name, padreId: node.nodoPadre?.id ?? '', orden: node.orden ?? 0 });
     setShowForm(true);
   };
 
-  const cancelForm = () => {
-    setShowForm(false);
-    setEditingNode(null);
-  };
+  const cancelForm = () => { setShowForm(false); setEditingNode(null); };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!formData.name.trim()) return;
     setSubmitting(true);
-    try {
-      if (editingNode) {
-        await updateOneRecord({
-          objectNameSingular: 'nodoVariable',
-          idToUpdate: editingNode.id,
-          updateOneRecordInput: { name: formData.name, orden: formData.orden },
-        });
-      } else {
-        await createNodo({
-          name: formData.name,
-          variableId: recordId,
-          ...(formData.padreId ? { nodoPadreId: formData.padreId } : {}),
-          orden: formData.orden,
-        } as any);
-      }
-      cancelForm();
-    } finally {
-      setSubmitting(false);
+    const allNodos = loadNodos();
+    if (editingNode) {
+      const updated = allNodos.map((n) =>
+        n.id === editingNode.id ? { ...n, name: formData.name, orden: formData.orden } : n,
+      );
+      saveNodos(updated);
+    } else {
+      const nuevo: Nodo = {
+        id: crypto.randomUUID(),
+        name: formData.name.trim(),
+        variableId: recordId,
+        nodoPadreId: formData.padreId || null,
+        orden: formData.orden,
+      };
+      saveNodos([...allNodos, nuevo]);
     }
+    setSubmitting(false);
+    cancelForm();
+    reloadNodos();
   };
 
-  const handleDelete = async (node: NodoVariable) => {
-    if (node.hijos.length > 0) {
-      window.alert('Elimina primero los nodos hijos.');
-      return;
-    }
+  const handleDelete = (node: NodoVariable) => {
+    if (node.hijos.length > 0) { window.alert('Elimina primero los nodos hijos.'); return; }
     if (!window.confirm(`¿Eliminar "${node.name}"?`)) return;
-    await deleteOneRecord(node.id);
+    saveNodos(loadNodos().filter((n) => n.id !== node.id));
+    reloadNodos();
   };
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -132,44 +114,19 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
 
     return (
       <div key={node.id} style={{ marginLeft: level * 24 }}>
-        <div
-          className="mgc-ve-node"
-          style={{ borderLeftColor: borderColor }}
-        >
-          <span
-            className="mgc-ve-toggle"
-            onClick={(e) => { stop(e); if (hasChildren) toggleNode(node.id); }}
-          >
+        <div className="mgc-ve-node" style={{ borderLeftColor: borderColor }}>
+          <span className="mgc-ve-toggle" onClick={(e) => { stop(e); if (hasChildren) toggleNode(node.id); }}>
             {hasChildren ? (isExpanded ? '▼' : '▶') : '•'}
           </span>
           <span className="mgc-ve-node-name">{node.name}</span>
           <span className="mgc-ve-badge">{getLabelNivel(level)}</span>
           {hasChildren && (
-            <span className="mgc-ve-count">
-              {node.hijos.length} {node.hijos.length === 1 ? 'hijo' : 'hijos'}
-            </span>
+            <span className="mgc-ve-count">{node.hijos.length} {node.hijos.length === 1 ? 'hijo' : 'hijos'}</span>
           )}
           <div className="mgc-ve-actions">
-            <button
-              className="mgc-ve-btn-add"
-              onClick={(e) => { stop(e); openCreateChild(node); }}
-            >
-              + Hijo
-            </button>
-            <button
-              className="mgc-ve-btn-edit"
-              onClick={(e) => { stop(e); openEdit(node); }}
-            >
-              Editar
-            </button>
-            <button
-              className="mgc-ve-btn-del"
-              disabled={hasChildren}
-              onClick={(e) => { stop(e); handleDelete(node); }}
-              title={hasChildren ? 'Elimina los hijos primero' : 'Eliminar'}
-            >
-              ✕
-            </button>
+            <button className="mgc-ve-btn-add" onClick={(e) => { stop(e); openCreateChild(node); }}>+ Hijo</button>
+            <button className="mgc-ve-btn-edit" onClick={(e) => { stop(e); openEdit(node); }}>Editar</button>
+            <button className="mgc-ve-btn-del" disabled={hasChildren} onClick={(e) => { stop(e); handleDelete(node); }} title={hasChildren ? 'Elimina los hijos primero' : 'Eliminar'}>✕</button>
           </div>
         </div>
         {hasChildren && isExpanded && (
@@ -185,11 +142,9 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
     <div className="mgc-ve-card" onClick={stop}>
       <div className="mgc-ve-header">
         <div>
-          <span className="mgc-ve-title">{(variable as any)?.name ?? 'Árbol'}</span>
+          <span className="mgc-ve-title">{variable?.name ?? 'Árbol'}</span>
           {nivelLabels.length > 0 && (
-            <span className="mgc-ve-levels">
-              &nbsp;·&nbsp;{nivelLabels.join(' › ')}
-            </span>
+            <span className="mgc-ve-levels">&nbsp;·&nbsp;{nivelLabels.join(' › ')}</span>
           )}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -202,11 +157,7 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
       {showForm && (
         <div className="mgc-ve-form" onClick={stop}>
           <div className="mgc-ve-form-title">
-            {editingNode
-              ? `Editar: ${editingNode.name}`
-              : formData.padreId
-              ? 'Nuevo nodo hijo'
-              : 'Nuevo nodo raíz'}
+            {editingNode ? `Editar: ${editingNode.name}` : formData.padreId ? 'Nuevo nodo hijo' : 'Nuevo nodo raíz'}
           </div>
           <div className="mgc-ve-form-row">
             <label>Valor</label>
@@ -216,11 +167,7 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
               autoFocus
               placeholder="ej: Advance"
               onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === 'Enter') handleSubmit();
-                if (e.key === 'Escape') cancelForm();
-              }}
+              onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') handleSubmit(); if (e.key === 'Escape') cancelForm(); }}
               onClick={stop}
             />
           </div>
@@ -231,24 +178,13 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
               type="number"
               min={0}
               value={formData.orden}
-              onChange={(e) =>
-                setFormData((d) => ({ ...d, orden: parseInt(e.target.value) || 0 }))
-              }
+              onChange={(e) => setFormData((d) => ({ ...d, orden: parseInt(e.target.value) || 0 }))}
               onClick={stop}
             />
           </div>
           <div className="mgc-ve-form-actions">
-            <button
-              className="mgc-ve-btn-secondary"
-              onClick={(e) => { stop(e); cancelForm(); }}
-            >
-              Cancelar
-            </button>
-            <button
-              className="mgc-ve-btn-primary"
-              disabled={submitting || !formData.name.trim()}
-              onClick={(e) => { stop(e); handleSubmit(); }}
-            >
+            <button className="mgc-ve-btn-secondary" onClick={(e) => { stop(e); cancelForm(); }}>Cancelar</button>
+            <button className="mgc-ve-btn-primary" disabled={submitting || !formData.name.trim()} onClick={(e) => { stop(e); handleSubmit(); }}>
               {submitting ? 'Guardando...' : editingNode ? 'Actualizar' : 'Crear'}
             </button>
           </div>
@@ -256,13 +192,10 @@ export const VariableEditorCard = ({ recordId }: { recordId: string }) => {
       )}
 
       <div className="mgc-ve-tree">
-        {arbol.length === 0 ? (
-          <div className="mgc-ve-empty">
-            Sin nodos — crea el primer nodo raíz para comenzar
-          </div>
-        ) : (
-          arbol.map((n) => renderNode(n))
-        )}
+        {arbol.length === 0
+          ? <div className="mgc-ve-empty">Sin nodos — crea el primer nodo raíz para comenzar</div>
+          : arbol.map((n) => renderNode(n))
+        }
       </div>
     </div>
   );

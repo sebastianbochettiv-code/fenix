@@ -591,6 +591,30 @@ const SettingsMagoChicConexiones = lazy(() =>
   })),
 );
 
+const SettingsMagoChicIAAgentes = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicIAAgentes').then((module) => ({
+    default: module.SettingsMagoChicIAAgentes,
+  })),
+);
+
+const SettingsMagoChicIAPlantillas = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicIAPlantillas').then((module) => ({
+    default: module.SettingsMagoChicIAPlantillas,
+  })),
+);
+
+const SettingsMagoChicIAPlantillaDiseno = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicIAPlantillaDiseno').then((module) => ({
+    default: module.SettingsMagoChicIAPlantillaDiseno,
+  })),
+);
+
+const SettingsMagoChicIAComponentes = lazy(() =>
+  import('~/pages/settings/magochic/SettingsMagoChicIAComponentes').then((module) => ({
+    default: module.SettingsMagoChicIAComponentes,
+  })),
+);
+
 type SettingsRoutesProps = {
   isFunctionSettingsEnabled?: boolean;
   isAdminPageEnabled?: boolean;
@@ -981,6 +1005,10 @@ export const SettingsRoutes = ({ isAdminPageEnabled }: SettingsRoutesProps) => (
       <Route path={SettingsPath.MagoChicVariables} element={<SettingsMagoChicVariables />} />
       <Route path={SettingsPath.MagoChicVariableDetail} element={<SettingsMagoChicVariableDetail />} />
       <Route path={SettingsPath.MagoChicConexiones} element={<SettingsMagoChicConexiones />} />
+      <Route path={SettingsPath.MagoChicIAAgentes} element={<SettingsMagoChicIAAgentes />} />
+      <Route path={SettingsPath.MagoChicIAPlantillas} element={<SettingsMagoChicIAPlantillas />} />
+      <Route path={SettingsPath.MagoChicIAPlantillaDiseno} element={<SettingsMagoChicIAPlantillaDiseno />} />
+      <Route path={SettingsPath.MagoChicIAComponentes} element={<SettingsMagoChicIAComponentes />} />
     </Routes>
   </Suspense>
 );
